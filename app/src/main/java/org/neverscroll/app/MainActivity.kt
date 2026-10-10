@@ -118,8 +118,9 @@ class MainActivity : Activity() {
                 ProtectedApp.YOUTUBE_REVANCED -> getString(R.string.shorts_link_screen)
                 ProtectedApp.INSTAGRAM -> getString(R.string.reels_screen)
                 ProtectedApp.TIKTOK -> getString(R.string.for_you_feed)
+                ProtectedApp.VK, ProtectedApp.VK_VIDEO -> getString(R.string.clips_screen)
             }
-            apps.addView(toggle(app.label, detail, GuardSettings.appEnabled(this, app)) {
+            apps.addView(toggle(getString(app.labelResource), detail, GuardSettings.appEnabled(this, app)) {
                 GuardSettings.setAppEnabled(this, app, it)
             })
         }
@@ -134,7 +135,7 @@ class MainActivity : Activity() {
             14f, muted, false,
         ).apply { setPadding(0, 0, 0, dp(12)) })
         for (app in ProtectedApp.entries) {
-            compatibility.addView(toggle(app.label, getString(R.string.compatibility_toggle_description),
+            compatibility.addView(toggle(getString(app.labelResource), getString(R.string.compatibility_toggle_description),
                 GuardSettings.compatibilityEnabled(this, app)) {
                 GuardSettings.setCompatibilityEnabled(this, app, it)
             })

@@ -83,7 +83,7 @@ class ScrollGuardService : AccessibilityService(), SharedPreferences.OnSharedPre
         }
         removeOverlay()
         val uiContext = AppLanguage.localizedContext(this)
-        val view = GuardOverlayView(uiContext, app.label,
+        val view = GuardOverlayView(uiContext, uiContext.getString(app.labelResource),
             exitLabel = uiContext.getString(
                 if (app == ProtectedApp.TIKTOK) R.string.exit_recents else R.string.exit_back),
             interceptBack = app == ProtectedApp.TIKTOK,
@@ -105,11 +105,18 @@ class ScrollGuardService : AccessibilityService(), SharedPreferences.OnSharedPre
             WindowManager.LayoutParams.MATCH_PARENT,
             overlayHeight,
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-            if (app == ProtectedApp.TIKTOK) 0 else WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                if (app == ProtectedApp.TIKTOK) 0 else WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             android.graphics.PixelFormat.TRANSLUCENT,
         )
         params.gravity = Gravity.TOP
         params.y = topInset
+        // Coordinates already exclude bars and the cutout. Applying their offsets
+        // again shifts the resized guard over the playback bar during replay.
+        if (Build.VERSION.SDK_INT >= 30) {
+            params.setFitInsetsTypes(0)
+            params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+        }
         try {
             windowManager.addView(view, params)
             overlay = view
@@ -241,11 +248,16 @@ class ScrollGuardService : AccessibilityService(), SharedPreferences.OnSharedPre
                 WindowManager.LayoutParams.MATCH_PARENT,
                 shieldHeight,
                 WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 android.graphics.PixelFormat.TRANSLUCENT,
             ).apply {
                 gravity = Gravity.TOP
                 y = bounds.bottom
+                if (Build.VERSION.SDK_INT >= 30) {
+                    setFitInsetsTypes(0)
+                    layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                }
             }
             try {
                 windowManager.addView(shield, shieldParams)

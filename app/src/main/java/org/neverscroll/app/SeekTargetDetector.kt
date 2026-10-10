@@ -20,6 +20,7 @@ internal object SeekTargetDetector {
                 className == "android.widget.SeekBar"
             ProtectedApp.INSTAGRAM -> id.endsWith(":id/clips_expanded_touch_view")
             ProtectedApp.TIKTOK -> id.endsWith(":id/video_seek_bar")
+            ProtectedApp.VK, ProtectedApp.VK_VIDEO -> id.endsWith(":id/clip_seekbar")
         }
     }
 

@@ -6,11 +6,13 @@ import java.util.ArrayDeque
 import java.util.Locale
 import kotlin.math.abs
 
-internal enum class ProtectedApp(val label: String, val preferenceKey: String) {
-    YOUTUBE("YouTube Shorts", "youtube_enabled"),
-    YOUTUBE_REVANCED("YouTube ReVanced", "youtube_revanced_enabled"),
-    INSTAGRAM("Instagram Reels", "instagram_enabled"),
-    TIKTOK("TikTok", "tiktok_enabled");
+internal enum class ProtectedApp(val labelResource: Int, val preferenceKey: String) {
+    YOUTUBE(R.string.app_youtube, "youtube_enabled"),
+    YOUTUBE_REVANCED(R.string.app_youtube_revanced, "youtube_revanced_enabled"),
+    INSTAGRAM(R.string.app_instagram, "instagram_enabled"),
+    TIKTOK(R.string.app_tiktok, "tiktok_enabled"),
+    VK(R.string.app_vk, "vk_enabled"),
+    VK_VIDEO(R.string.app_vk_video, "vk_video_enabled");
 
     companion object {
         fun fromPackage(packageName: String): ProtectedApp? = when (packageName) {
@@ -18,6 +20,8 @@ internal enum class ProtectedApp(val label: String, val preferenceKey: String) {
             "app.revanced.android.youtube" -> YOUTUBE_REVANCED
             "com.instagram.android" -> INSTAGRAM
             "com.zhiliaoapp.musically", "com.ss.android.ugc.trill" -> TIKTOK
+            "com.vkontakte.android" -> VK
+            "com.vk.vkvideo" -> VK_VIDEO
             else -> null
         }
     }
@@ -65,6 +69,10 @@ internal object FeedDetector {
                 signals.idContains("reel_viewer") ||
                     signals.idContains("clips_viewer") ||
                     (hasEngagement && signals.selectedLabelContains("reels")) ||
+                    signals.rightRailActions.size >= 2
+
+            ProtectedApp.VK, ProtectedApp.VK_VIDEO ->
+                signals.ids.any { it.endsWith(":id/fullscreen_clip_container") } &&
                     signals.rightRailActions.size >= 2
 
             ProtectedApp.TIKTOK ->

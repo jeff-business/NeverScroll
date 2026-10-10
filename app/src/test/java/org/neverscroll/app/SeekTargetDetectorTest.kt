@@ -5,6 +5,17 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SeekTargetDetectorTest {
+    @Test fun vkClipsUseOnlyThePlaybackBar() {
+        val screen = Bounds(0, 0, 1272, 2772)
+        val bar = Bounds(0, 2503, 1272, 2581)
+        for ((app, pkg) in listOf(ProtectedApp.VK to "com.vkontakte.android",
+                ProtectedApp.VK_VIDEO to "com.vk.vkvideo")) {
+            assertTrue(SeekTargetDetector.matches(app, "$pkg:id/clip_seekbar", "android.view.View", bar, screen))
+            assertFalse(SeekTargetDetector.matches(app, "$pkg:id/clip_feed_seekbar_background", "android.view.View", bar, screen))
+            assertFalse(SeekTargetDetector.matches(app, "$pkg:id/video_seekbar", "android.widget.SeekBar", bar, screen))
+        }
+    }
+
     private val screen = Bounds(0, 141, 1272, 2582)
 
     @Test fun youtubeSeekBarAtBottomIsASeekTarget() {

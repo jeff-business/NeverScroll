@@ -98,6 +98,55 @@ class FeedDetectorTest {
             "dislike") == null)
     }
 
+    @Test fun vkAppsHaveSeparateProtection() {
+        assertTrue(ProtectedApp.fromPackage("com.vkontakte.android") == ProtectedApp.VK)
+        assertTrue(ProtectedApp.fromPackage("com.vk.vkvideo") == ProtectedApp.VK_VIDEO)
+        assertTrue(ProtectedApp.VK.preferenceKey != ProtectedApp.VK_VIDEO.preferenceKey)
+        assertTrue(ProtectedApp.fromPackage("com.vk.clips") == null)
+    }
+
+    @Test fun vkAndVkVideoClipsUseViewerAndVerticalControlsWithoutFeedTitle() {
+        // VK 8.199 and VK Video 1.166 on a 1272 x 2772 Android 16 phone.
+        for ((app, pkg) in listOf(ProtectedApp.VK to "com.vkontakte.android",
+                ProtectedApp.VK_VIDEO to "com.vk.vkvideo")) {
+            val rail = FeedDetector.verticalRailActions(Bounds(0, 0, 1272, 2772), listOf(
+                Bounds(1105, 1642, 1248, 1785) to "$pkg:id/fullscreen_clip_overlay_like_image",
+                Bounds(1105, 1832, 1248, 1975) to "Комментарий",
+                Bounds(1105, 2022, 1248, 2165) to "Поделиться",
+            ))
+            assertTrue(FeedDetector.isShortFeed(app, ScreenSignals(
+                setOf("$pkg:id/fullscreen_clip_container"), emptySet(), rightRailActions = rail)))
+            assertFalse(FeedDetector.isShortFeed(app, ScreenSignals(
+                setOf("$pkg:id/fullscreen_clip_container"), emptySet())))
+            assertFalse(FeedDetector.isShortFeed(app, ScreenSignals(
+                setOf("$pkg:id/clip_feed_seekbar"), emptySet(), rightRailActions = rail)))
+        }
+    }
+
+    @Test fun vkTabsHomePostsAndLongVideosAreNotClips() {
+        for (app in listOf(ProtectedApp.VK, ProtectedApp.VK_VIDEO)) {
+            val postActions = FeedDetector.verticalRailActions(Bounds(0, 0, 1272, 2772), listOf(
+                Bounds(48, 2000, 191, 2143) to "Нравится",
+                Bounds(239, 2000, 382, 2143) to "Комментарий",
+                Bounds(430, 2000, 573, 2143) to "Поделиться",
+            ))
+            assertFalse(FeedDetector.isShortFeed(app, ScreenSignals(
+                setOf("tab_clips", "clip_feed_background", "clip_feed_seekbar_background"),
+                setOf("клипы", "clips", "нравится", "комментарий", "поделиться"),
+                setOf("клипы"), postActions)))
+            assertFalse(FeedDetector.isShortFeed(app, ScreenSignals(
+                setOf("fullscreen_video_base_video_container", "video_player"),
+                setOf("нравится", "комментарий", "поделиться"), rightRailActions =
+                    setOf(VideoAction.LIKE, VideoAction.COMMENT, VideoAction.SHARE))))
+            assertFalse(FeedDetector.isShortFeed(app, ScreenSignals(
+                setOf("comment_bottom_sheet_background", "bottom_sheet_container"),
+                setOf("комментарии", "нравится"))))
+            assertFalse(FeedDetector.isShortFeed(app, ScreenSignals(
+                setOf("fullscreen_clip_container_thumbnail"), emptySet(), rightRailActions =
+                    setOf(VideoAction.LIKE, VideoAction.COMMENT))))
+        }
+    }
+
     @Test fun onlyKnownPackagesAreInspected() {
         assertTrue(ProtectedApp.fromPackage("com.google.android.youtube") == ProtectedApp.YOUTUBE)
         assertTrue(ProtectedApp.fromPackage("com.zhiliaoapp.musically") == ProtectedApp.TIKTOK)
