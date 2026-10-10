@@ -1,12 +1,12 @@
 # NeverScroll
 
-[Website](https://jeff-business.github.io/NeverScroll/) · [Русская версия](https://jeff-business.github.io/NeverScroll/ru/)
+[Website](https://lebedev-nikita.github.io/NeverScroll/) · [Русская версия](https://lebedev-nikita.github.io/NeverScroll/ru/)
 
 NeverScroll is an Android app for a familiar situation: someone sends you a short video, you watch it, and you want to return to the messenger before an instinctive swipe pulls you into the feed. On a recognized YouTube Shorts (including YouTube ReVanced), Instagram Reels, TikTok, VK Clips, or VK Video Clips screen, it blocks feed drags **from the first video** while allowing horizontal seeking on a recognized playback bar. A banner at the top provides an exit action. Short taps are passed to the original app where possible, so you can pause the video or open comments.
 
 ## Install
 
-NeverScroll requires Android 8.0 or later. Download the signed APK from the [latest release](https://github.com/jeff-business/NeverScroll/releases/latest). To build a local development APK, use JDK 17 and Android SDK 36:
+NeverScroll requires Android 8.0 or later. Download the signed APK from the [latest release](https://github.com/lebedev-nikita/NeverScroll/releases/latest). To build a local development APK, use JDK 17 and Android SDK 36:
 
 ```sh
 ./gradlew assembleDebug
